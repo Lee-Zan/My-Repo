@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FutHub - Futsal Booking & Opponent Finder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-green: #00c853;
+            --dark-green: #009624;
+            --light-green: #5efc82;
+            --accent-green: #a7ffb3;
+            --text-white: #ffffff;
+            --text-light: #f5f5f5;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: var(--text-white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2.2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 1.5rem;
+            position: relative;
+        }
+
+        nav ul li a {
+            color: var(--text-white);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0.8rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        nav ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--text-white);
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: var(--transition);
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1575361204480-aadea25e6e68?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80') no-repeat center center;
+            background-size: cover;
+            color: var(--text-white);
+            padding: 5rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            min-height: 90vh;
+        }
+
+        .hero-content {
+            flex: 1;
+            min-width: 300px;
+            padding-right: 2rem;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .cta-button {
+            background: linear-gradient(to right, var(--light-green), var(--primary-green));
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 200, 83, 0.6);
+        }
+
+        .hero-image {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Action Boxes */
+        .action-section {
+            padding: 5rem 2rem;
+            text-align: center;
+            background-color: var(--text-light);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--dark-green);
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--light-green), var(--primary-green));
+        }
+
+        .action-boxes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .action-box {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 2.5rem 1.5rem;
+            width: 300px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            border-top: 5px solid var(--primary-green);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--light-green), var(--primary-green));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .action-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-box:hover::before {
+            transform: scaleX(1);
+        }
+
+        .action-box i {
+            font-size: 3.5rem;
+            background: linear-gradient(to right, var(--light-green), var(--primary-green));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-box h3 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            color: var(--dark-green);
+        }
+
+        .action-box p {
+            color: #666;
+        }
+
+        /* Partners Section */
+        .partners-section {
+            padding: 5rem 2rem;
+            background-color: var(--text-white);
+        }
+
+        .carousel {
+            position: relative;
+            overflow: hidden;
+            padding: 2rem 0;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease;
+            gap: 1.5rem;
+        }
+
+        .carousel-item {
+            min-width: 250px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .carousel-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .carousel-item h4 {
+            padding: 1rem;
+            text-align: center;
+            color: var(--dark-green);
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(to right, var(--light-green), var(--primary-green));
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: var(--transition);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .carousel-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-btn.prev {
+            left: 10px;
+        }
+
+        .carousel-btn.next {
+            right: 10px;
+        }
+
+        /* News Section */
+        .news-section {
+            padding: 5rem 2rem;
+            background-color: var(--text-light);
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .news-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .news-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--light-green), var(--primary-green));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .news-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .news-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .news-content {
+            padding: 1.5rem;
+        }
+
+        .news-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark-green);
+        }
+
+        .news-content p {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .news-date {
+            display: flex;
+            align-items: center;
+            color: var(--primary-green);
+            font-size: 0.9rem;
+        }
+
+        .news-date i {
+            margin-right: 5px;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: var(--text-white);
+            padding: 3rem 2rem 1rem;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--accent-green);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-column ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--accent-green);
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--text-white);
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background-color: var(--accent-green);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+                flex-direction: column;
+                padding: 1rem 0;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            nav ul.show {
+                display: flex;
+            }
+
+            nav ul li {
+                margin: 0;
+                text-align: center;
+            }
+
+            nav ul li a {
+                display: block;
+                padding: 1rem;
+            }
+
+            .dropdown-content {
+                position: static;
+                box-shadow: none;
+                background-color: var(--dark-green);
+            }
+
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 3rem 1rem;
+            }
+
+            .hero-content {
+                padding-right: 0;
+                margin-bottom: 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .carousel-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo">
+            <i class="fas fa-futbol"></i>
+            FutHub
+        </div>
+        <div class="mobile-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li class="dropdown">
+                    <a href="#">Login <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-content">
+                        <a href="#" onclick="openLoginModal('player')">Player Login</a>
+                        <a href="#" onclick="openLoginModal('owner')">Owner Login</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">Signup <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-content">
+                        <a href="#" onclick="openSignupModal('player')">Player Signup</a>
+                        <a href="#" onclick="openSignupModal('owner')">Owner Signup</a>
+                    </div>
+                </li>
+                <li><a href="#news">Blog</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Play in Courts with anyone near you</h1>
+            <p>Book futsal courts, find opponents and teammates, and join the futsal community in Nepal.</p>
+            <button class="cta-button" onclick="scrollToSection('action-section')">
+                Get Started <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        <div class="hero-image">
+            <!-- Background image is set via CSS -->
+        </div>
+    </section>
+
+    <!-- Action Boxes Section -->
+    <section class="action-section" id="action-section">
+        <h2 class="section-title">What We Offer</h2>
+        <div class="action-boxes">
+            <div class="action-box" onclick="openLoginModal('player')">
+                <i class="fas fa-calendar-check"></i>
+                <h3>Book Futsal</h3>
+                <p>Find and book futsal courts near you with real-time availability and instant confirmation.</p>
+            </div>
+            <div class="action-box" onclick="openLoginModal('player')">
+                <i class="fas fa-users"></i>
+                <h3>Find Opponents</h3>
+                <p>Connect with other players looking for opponents to complete your futsal matches.</p>
+            </div>
+            <div class="action-box" onclick="openLoginModal('player')">
+                <i class="fas fa-user-friends"></i>
+                <h3>Find Teammates</h3>
+                <p>Find players to join your team or join existing teams for regular futsal games.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners Section -->
+    <section class="partners-section" id="partners">
+        <h2 class="section-title">Our Partners</h2>
+        <div class="carousel">
+            <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+            <div class="carousel-track">
+                <div class="carousel-item" onclick="scrollToBooking('kathmandu')">
+                    <img src="https://images.unsplash.com/photo-1518604666860-9ed391f76460?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Kathmandu Futsal">
+                    <h4>Kathmandu Futsal</h4>
+                </div>
+                <div class="carousel-item" onclick="scrollToBooking('pokhara')">
+                    <img src="https://images.unsplash.com/photo-1556056504-5c7696c4c28d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1976&q=80" alt="Pokhara Arena">
+                    <h4>Pokhara Arena</h4>
+                </div>
+                <div class="carousel-item" onclick="scrollToBooking('chitwan')">
+                    <img src="https://images.unsplash.com/photo-1575361204480-aadea25e6e68?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80" alt="Chitwan Sports">
+                    <h4>Chitwan Sports</h4>
+                </div>
+                <div class="carousel-item" onclick="scrollToBooking('biratnagar')">
+                    <img src="https://images.unsplash.com/photo-1529900748604-07564a03e7a6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Biratnagar Ground">
+                    <h4>Biratnagar Ground</h4>
+                </div>
+                <div class="carousel-item" onclick="scrollToBooking('lalitpur')">
+                    <img src="https://images.unsplash.com/photo-1590179064043-86d1bcfee0e9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Lalitpur Futsal">
+                    <h4>Lalitpur Futsal</h4>
+                </div>
+                <div class="carousel-item" onclick="scrollToBooking('bhaktapur')">
+                    <img src="https://images.unsplash.com/photo-1527281403897-97e5fb4f6eae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Bhaktapur Court">
+                    <h4>Bhaktapur Court</h4>
+                </div>
+                <div class="carousel-item" onclick="scrollToBooking('butwal')">
+                    <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Butwal Sports">
+                    <h4>Butwal Sports</h4>
+                </div>
+            </div>
+            <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section class="news-section" id="news">
+        <h2 class="section-title">Latest News & Articles</h2>
+        <div class="news-grid">
+            <div class="news-card" onclick="openNewsModal(1)">
+                <img src="https://images.unsplash.com/photo-1575361204480-aadea25e6e68?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80" alt="New Futsal Opening">
+                <div class="news-content">
+                    <h3>New Futsal Arena Opening in Thamel</h3>
+                    <p>A brand new futsal court with international standards is opening next month in Thamel...</p>
+                    <div class="news-date">
+                        <i class="far fa-calendar-alt"></i> October 15, 2023
+                    </div>
+                </div>
+            </div>
+            <div class="news-card" onclick="openNewsModal(2)">
+                <img src="https://images.unsplash.com/photo-1556056504-5c7696c4c28d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1976&q=80" alt="Maintenance Notice">
+                <div class="news-content">
+                    <h3>Maintenance Schedule for Popular Courts</h3>
+                    <p>Several popular futsal courts will be under maintenance during the upcoming festival season...</p>
+                    <div class="news-date">
+                        <i class="far fa-calendar-alt"></i> October 10, 2023
+                    </div>
+                </div>
+            </div>
+            <div class="news-card" onclick="openNewsModal(3)">
+                <img src="https://images.unsplash.com/photo-1590179064043-86d1bcfee0e9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Tournament News">
+                <div class="news-content">
+                    <h3>Annual Futsal Tournament Registration Open</h3>
+                    <p>Registration for the annual inter-college futsal tournament is now open. Teams can register through FutHub...</p>
+                    <div class="news-date">
+                        <i class="far fa-calendar-alt"></i> October 5, 2023
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>FutHub</h3>
+                <p>Making futsal booking and opponent finding simple and convenient for players across Nepal.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#action-section">Book Futsal</a></li>
+                    <li><a href="#action-section">Find Opponents</a></li>
+                    <li><a href="#action-section">Find Teammates</a></li>
+                    <li><a href="#news">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i> New Summit College, Kathmandu</li>
+                    <li><i class="fas fa-phone"></i> +977 9841XXXXXX</li>
+                    <li><i class="fas fa-envelope"></i> info@futhub.com</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 FutHub. All rights reserved. | BCA Project - Tribhuvan University</p>
+        </div>
+    </footer>
+
+    <!-- Login/Signup Modal -->
+    <div id="authModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background-color: white; padding: 2rem; border-radius: 10px; width: 90%; max-width: 400px; position: relative;">
+            <span onclick="closeModal()" style="position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer;">&times;</span>
+            <h2 id="modalTitle" style="margin-bottom: 1.5rem; color: var(--dark-green);">Login</h2>
+            <div id="modalContent">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile Menu Toggle
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            document.querySelector('nav ul').classList.toggle('show');
+        });
+
+        // Carousel Functionality
+        const track = document.querySelector('.carousel-track');
+        const items = document.querySelectorAll('.carousel-item');
+        const nextBtn = document.querySelector('.carousel-btn.next');
+        const prevBtn = document.querySelector('.carousel-btn.prev');
+        
+        let currentIndex = 0;
+        const itemWidth = items[0].getBoundingClientRect().width + 24; // including gap
+        
+        function updateCarousel() {
+            track.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < items.length - 1) {
+                currentIndex++;
+                updateCarousel();
+            }
+        });
+        
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCarousel();
+            }
+        });
+
+        // Auto-scroll carousel
+        setInterval(() => {
+            if (currentIndex < items.length - 1) {
+                currentIndex++;
+            } else {
+                currentIndex = 0;
+            }
+            updateCarousel();
+        }, 4000);
+
+        // Smooth scrolling to sections
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Open login modal
+        function openLoginModal(userType) {
+            const modal = document.getElementById('authModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalTitle.textContent = `${userType.charAt(0).toUpperCase() + userType.slice(1)} Login`;
+            
+            modalContent.innerHTML = `
+                <form>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="email" style="display: block; margin-bottom: 0.5rem;">Email</label>
+                        <input type="email" id="email" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" required>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="password" style="display: block; margin-bottom: 0.5rem;">Password</label>
+                        <input type="password" id="password" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" required>
+                    </div>
+                    <button type="submit" style="width: 100%; padding: 0.75rem; background: linear-gradient(to right, var(--light-green), var(--primary-green)); color: white; border: none; border-radius: 4px; cursor: pointer;">Login</button>
+                </form>
+                <p style="text-align: center; margin-top: 1rem;">Don't have an account? <a href="#" onclick="openSignupModal('${userType}')" style="color: var(--primary-green);">Sign up</a></p>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        // Open signup modal
+        function openSignupModal(userType) {
+            const modal = document.getElementById('authModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalTitle.textContent = `${userType.charAt(0).toUpperCase() + userType.slice(1)} Sign Up`;
+            
+            modalContent.innerHTML = `
+                <form>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="name" style="display: block; margin-bottom: 0.5rem;">Full Name</label>
+                        <input type="text" id="name" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" required>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="email" style="display: block; margin-bottom: 0.5rem;">Email</label>
+                        <input type="email" id="email" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" required>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="password" style="display: block; margin-bottom: 0.5rem;">Password</label>
+                        <input type="password" id="password" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" required>
+                    </div>
+                    <button type="submit" style="width: 100%; padding: 0.75rem; background: linear-gradient(to right, var(--light-green), var(--primary-green)); color: white; border: none; border-radius: 4px; cursor: pointer;">Sign Up</button>
+                </form>
+                <p style="text-align: center; margin-top: 1rem;">Already have an account? <a href="#" onclick="openLoginModal('${userType}')" style="color: var(--primary-green);">Login</a></p>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        // Open news modal
+        function openNewsModal(id) {
+            const modal = document.getElementById('authModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            const newsTitles = [
+                "New Futsal Arena Opening in Thamel",
+                "Maintenance Schedule for Popular Courts",
+                "Annual Futsal Tournament Registration Open"
+            ];
+            
+            const newsContents = [
+                "<p>A brand new futsal court with international standards is opening next month in Thamel. The court features artificial turf, professional lighting, and locker room facilities.</p><p>The grand opening will include a friendly tournament with prizes for winners. Pre-booking for the first month is available at a 20% discount.</p>",
+                "<p>Several popular futsal courts will be under maintenance during the upcoming festival season. The maintenance schedule is as follows:</p><ul><li>Kathmandu Futsal: Oct 20-25</li><li>Pokhara Arena: Oct 22-27</li><li>Chitwan Sports: Oct 25-30</li></ul><p>We apologize for any inconvenience and recommend booking alternative courts during these periods.</p>",
+                "<p>Registration for the annual inter-college futsal tournament is now open. Teams can register through FutHub until November 15th.</p><p>The tournament will take place from December 1st to 10th at various venues across Kathmandu. There are categories for men's, women's, and mixed teams.</p><p>Registration fee: NPR 2000 per team. Prizes include trophies, medals, and cash rewards for winners.</p>"
+            ];
+            
+            modalTitle.textContent = newsTitles[id-1];
+            modalContent.innerHTML = newsContents[id-1] + '<button onclick="closeModal()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-green); color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>';
+            
+            modal.style.display = 'flex';
+        }
+
+        // Scroll to booking section (placeholder function)
+        function scrollToBooking(venue) {
+            alert(`Redirecting to booking page for ${venue}. In a real application, this would navigate to the specific venue's booking page.`);
+            // In a real app: window.location.href = `/booking?venue=${venue}`;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('authModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
